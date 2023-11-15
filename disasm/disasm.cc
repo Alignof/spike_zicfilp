@@ -880,6 +880,7 @@ void disassembler_t::add_instructions(const isa_parser_t* isa)
 
   DEFINE_LTYPE(lui);
   DEFINE_LTYPE(auipc);
+  add_insn(new disasm_insn_t("lpad", code, 0, {&bigimm}));
 
   add_insn(new disasm_insn_t("ret", match_jalr | match_rs1_ra, mask_jalr | mask_rd | mask_rs1 | mask_imm, {}));
   DEFINE_I2TYPE("jr", jalr);
