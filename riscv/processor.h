@@ -88,6 +88,7 @@ struct state_t
   bool v_changed;
   bool v;
   bool prev_v;
+  bool lp_expected;
   misa_csr_t_p misa;
   mstatus_csr_t_p mstatus;
   csr_t_p mstatush;
