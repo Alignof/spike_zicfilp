@@ -7,6 +7,15 @@
 #include "decode_macros.h"
 #include <cassert>
 
+reg_t fast_rv32i_lpad(processor_t* p, insn_t insn, reg_t pc);
+reg_t fast_rv64i_lpad(processor_t* p, insn_t insn, reg_t pc);
+reg_t logged_rv32i_lpad(processor_t* p, insn_t insn, reg_t pc);
+reg_t logged_rv64i_lpad(processor_t* p, insn_t insn, reg_t pc);
+reg_t fast_rv32e_lpad(processor_t* p, insn_t insn, reg_t pc);
+reg_t fast_rv64e_lpad(processor_t* p, insn_t insn, reg_t pc);
+reg_t logged_rv32e_lpad(processor_t* p, insn_t insn, reg_t pc);
+reg_t logged_rv64e_lpad(processor_t* p, insn_t insn, reg_t pc);
+
 static void commit_log_reset(processor_t* p)
 {
   p->get_state()->log_reg_write.clear();
@@ -157,11 +166,30 @@ inline void processor_t::update_histogram(reg_t pc)
     pc_histogram[pc]++;
 }
 
+inline void check_lpad(processor_t *p, insn_fetch_t fetch) {
+  bool lp_enabled = (STATE.prv == PRV_M && STATE.mseccfg->read() & MSECCFG_LPE) ||
+                    (STATE.prv == PRV_S && STATE.menvcfg->read() & MENVCFG_LPE) || 
+                    (STATE.prv == PRV_U && STATE.senvcfg->read() & SENVCFG_LPE);
+  if (unlikely(STATE.lp_expected && lp_enabled)) {
+    bool is_lpad_inst = (fetch.func == fast_rv32i_lpad) || (fetch.func == fast_rv64i_lpad) ||
+                        (fetch.func == logged_rv32i_lpad) || (fetch.func == logged_rv64i_lpad) ||
+                        (fetch.func == fast_rv32e_lpad) || (fetch.func == fast_rv64e_lpad) ||
+                        (fetch.func == logged_rv32e_lpad) || (fetch.func == logged_rv64e_lpad);
+    if (!is_lpad_inst) {
+        STATE.mtval->write(2); // landing pad fault
+        STATE.lp_expected = false;
+        throw trap_software_check_exception();
+    }
+  }
+}
+
 // These two functions are expected to be inlined by the compiler separately in
 // the processor_t::step() loop. The logged variant is used in the slow path
 static inline reg_t execute_insn_fast(processor_t* p, reg_t pc, insn_fetch_t fetch) {
+  check_lpad(p, fetch);
   return fetch.func(p, fetch.insn, pc);
 }
+
 static inline reg_t execute_insn_logged(processor_t* p, reg_t pc, insn_fetch_t fetch)
 {
   if (p->get_log_commits_enabled()) {
@@ -172,6 +200,7 @@ static inline reg_t execute_insn_logged(processor_t* p, reg_t pc, insn_fetch_t f
   reg_t npc;
 
   try {
+    check_lpad(p, fetch);
     npc = fetch.func(p, fetch.insn, pc);
     if (npc != PC_SERIALIZE_BEFORE) {
       if (p->get_log_commits_enabled()) {
