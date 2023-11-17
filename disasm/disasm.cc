@@ -734,6 +734,7 @@ void disassembler_t::add_instructions(const isa_parser_t* isa)
 {
   const uint32_t mask_rd = 0x1fUL << 7;
   const uint32_t match_rd_ra = 1UL << 7;
+  const uint32_t match_rd_zero = 0UL << 7;
   const uint32_t mask_rs1 = 0x1fUL << 15;
   const uint32_t match_rs1_ra = 1UL << 15;
   const uint32_t mask_rs2 = 0x1fUL << 20;
@@ -879,8 +880,8 @@ void disassembler_t::add_instructions(const isa_parser_t* isa)
   DEFINE_BTYPE(bgeu)
 
   DEFINE_LTYPE(lui);
+  add_insn(new disasm_insn_t("lpad", match_auipc | match_rd_zero, mask_auipc | mask_rd, {&bigimm}));
   DEFINE_LTYPE(auipc);
-  add_insn(new disasm_insn_t("lpad", match_lpad, 0, {&bigimm}));
 
   add_insn(new disasm_insn_t("ret", match_jalr | match_rs1_ra, mask_jalr | mask_rd | mask_rs1 | mask_imm, {}));
   DEFINE_I2TYPE("jr", jalr);

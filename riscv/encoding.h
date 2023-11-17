@@ -620,8 +620,8 @@
 #define MASK_C_LH 0xfc43
 #define MATCH_C_LHU 0x8400
 #define MASK_C_LHU 0xfc43
-#define MATCH_LPAD 0x17
-#define MASK_LPAD 0x7f
+#define MATCH_LPAD 0x017
+#define MASK_LPAD 0xfff
 #define MATCH_C_LI 0x4001
 #define MASK_C_LI 0xe003
 #define MATCH_C_LQ 0x2000
