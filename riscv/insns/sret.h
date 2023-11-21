@@ -13,6 +13,7 @@ reg_t prev_prv = get_field(s, MSTATUS_SPP);
 s = set_field(s, MSTATUS_SIE, get_field(s, MSTATUS_SPIE));
 s = set_field(s, MSTATUS_SPIE, 1);
 s = set_field(s, MSTATUS_SPP, PRV_U);
+STATE.lp_expected = get_field(s, MSTATUS_MPELP);
 STATE.sstatus->write(s);
 bool prev_virt = STATE.v;
 if (!STATE.v) {
