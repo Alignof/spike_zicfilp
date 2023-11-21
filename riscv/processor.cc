@@ -897,6 +897,7 @@ void processor_t::take_trap(trap_t& t, reg_t epc)
     s = set_field(s, MSTATUS_SPIE, get_field(s, MSTATUS_SIE));
     s = set_field(s, MSTATUS_SPP, state.prv);
     s = set_field(s, MSTATUS_SIE, 0);
+    s = set_field(s, MSTATUS_SPELP, STATE.lp_expected);
     state.nonvirtual_sstatus->write(s);
     if (extension_enabled('H')) {
       s = state.hstatus->read();
@@ -928,6 +929,7 @@ void processor_t::take_trap(trap_t& t, reg_t epc)
     s = set_field(s, MSTATUS_MIE, 0);
     s = set_field(s, MSTATUS_MPV, curr_virt);
     s = set_field(s, MSTATUS_GVA, t.has_gva());
+    s = set_field(s, MSTATUS_MPELP, STATE.lp_expected);
     state.mstatus->write(s);
     if (state.mstatush) state.mstatush->write(s >> 32);  // log mstatush change
     set_privilege(PRV_M, false);
