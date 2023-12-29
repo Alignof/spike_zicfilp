@@ -462,7 +462,7 @@ void state_t::reset(processor_t* const proc, reg_t max_isa)
       csrmap[CSR_MENVCFG] = menvcfg;
     }
     const reg_t senvcfg_mask = (proc->extension_enabled(EXT_ZICBOM) ? SENVCFG_CBCFE | SENVCFG_CBIE : 0) |
-                              (proc->extension_enabled(EXT_ZICBOZ) ? SENVCFG_CBZE : 0);
+                               ((proc->extension_enabled(EXT_ZICBOZ) ? SENVCFG_CBZE : 0) | SENVCFG_LPE);
     csrmap[CSR_SENVCFG] = senvcfg = std::make_shared<senvcfg_csr_t>(proc, CSR_SENVCFG, senvcfg_mask, 0);
     const reg_t henvcfg_mask = (proc->extension_enabled(EXT_ZICBOM) ? HENVCFG_CBCFE | HENVCFG_CBIE : 0) |
                               (proc->extension_enabled(EXT_ZICBOZ) ? HENVCFG_CBZE : 0) |
